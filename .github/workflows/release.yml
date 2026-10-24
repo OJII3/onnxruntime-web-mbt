@@ -1,25 +1,21 @@
 name: Release
 
 on:
-  release:
-    types: [published]
+  push:
+    tags: ["v*"]
 
 permissions:
-  contents: read
-  id-token: write
+  contents: write
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1
-        with:
-          ref: ${{ github.event.release.tag_name }}
 
       - uses: actions/setup-node@v7.1.0
         with:
           node-version: 22
-          registry-url: https://registry.npmjs.org
 
       - name: Install MoonBit
         run: |
@@ -28,7 +24,7 @@ jobs:
 
       - name: Check release version
         env:
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_TAG: ${{ github.ref_name }}
         run: |
           node --input-type=module <<'NODE'
           import { readFileSync } from 'node:fs'
@@ -41,6 +37,11 @@ jobs:
             throw new Error(`Release tag ${tag} must match both package versions (npm: ${npmVersion}, MoonBit: ${moonVersion ?? 'missing'})`)
           }
           NODE
+
+      - name: Check Mooncakes credentials
+        env:
+          MOONCAKES_TOKEN: ${{ secrets.MOONCAKES_TOKEN }}
+        run: test -n "$MOONCAKES_TOKEN"
 
       - name: Check and build
         run: |
@@ -58,5 +59,11 @@ jobs:
           MOONCAKES_TOKEN: ${{ secrets.MOONCAKES_TOKEN }}
         run: |
           mkdir -p "$HOME/.moon"
-          printf '%s' "$MOONCAKES_TOKEN" > "$HOME/.moon/credentials.json"
+          jq -n --arg username "OJII3" --arg token "$MOONCAKES_TOKEN" \
+            '{username: $username, token: $token}' > "$HOME/.moon/credentials.json"
           moon publish
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" --generate-notes
