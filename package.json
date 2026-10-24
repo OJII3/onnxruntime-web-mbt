@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@ojii3/onnxruntime-web-mbt": "file:./js",
+    "onnxruntime-web": "^1.30.0"
+  }
+}

@@ -1,2 +1,5 @@
 .envrc
 .direnv/
+.mooncakes/
+_build/
+node_modules/

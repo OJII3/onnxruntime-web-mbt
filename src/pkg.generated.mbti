@@ -1,0 +1,25 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "ojii3/onnxruntime_web"
+
+// Values
+
+// Errors
+
+// Types and methods
+#external
+pub type InferenceSession
+pub async fn InferenceSession::create(String) -> Self
+pub fn InferenceSession::input_names(Self) -> FixedArray[String]
+pub fn InferenceSession::output_names(Self) -> FixedArray[String]
+pub async fn InferenceSession::release(Self) -> Unit
+pub async fn InferenceSession::run(Self, FixedArray[(String, Tensor)]) -> FixedArray[Tensor]
+
+#external
+pub type Tensor
+pub fn Tensor::dims(Self) -> FixedArray[Int32]
+pub fn Tensor::float32(FixedArray[Double], FixedArray[Int32]) -> Self
+pub fn Tensor::float32_data(Self) -> FixedArray[Double]
+
+// Type aliases
+
+// Traits
