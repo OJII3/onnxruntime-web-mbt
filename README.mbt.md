@@ -13,22 +13,42 @@ The current binding intentionally covers the common float32 inference path. Othe
 
 ## Install
 
-Add the MoonBit package and its JavaScript companion to your project:
+Add the MoonBit package to your project:
 
 ```sh
 moon add OJII3/onnxruntime_web
+```
+
+The Mooncakes archive includes the JavaScript companion under `js/`, together with its `package.json`. Register that installed directory as a local dependency and install ONNX Runtime Web:
+
+```sh
+# Run from the consuming MoonBit module's root, after moon add:
 pnpm add onnxruntime-web @ojii3/onnxruntime-web-mbt@link:./.mooncakes/OJII3/onnxruntime_web/js
 ```
 
-Add the import to the MoonBit package that uses the binding:
+Add `"OJII3/onnxruntime_web"` to your package's `moon.pkg` imports:
 
-```toml
+```moonbit
 import {
   "OJII3/onnxruntime_web",
 }
+
+supported_targets = "js"
 ```
 
-Build for JavaScript with `moon build --target js`. The consumer must bundle or otherwise resolve the `onnxruntime-web` npm package and the companion package.
+and build with `moon build --target js`. Browser applications need a bundler such as Vite to resolve the JavaScript imports.
+
+Both the MoonBit bindings and their JavaScript support are distributed by `moon publish`; no companion npm release or repository checkout is required. The local link resolves the existing `#module("@ojii3/onnxruntime-web-mbt")` imports and follows the companion installed by MoonBit. `onnxruntime-web` itself remains an npm dependency. No bundler alias for `@ojii3/onnxruntime-web-mbt` is needed: its local package link resolves the companion's export map in both development and production.
+
+Commit your MoonBit and pnpm manifests and lockfiles. On a fresh checkout or in CI, restore MoonBit dependencies before installing the local JavaScript link:
+
+```sh
+moon update
+moon build --target js --release
+pnpm install --frozen-lockfile
+```
+
+The link above assumes a standalone module. In a workspace, use the actual `.mooncakes/OJII3/onnxruntime_web/js` path relative to the consuming `package.json`. For a local library workspace member, link to that member's `js/` directory.
 
 ## Example
 
@@ -56,11 +76,11 @@ moon fmt
 moon build --target js
 ```
 
-The npm companion lives in `js/adapter.js`. It imports ONNX Runtime Web and adapts the module's API to the small FFI surface in `src/onnxruntime.mbt`.
+The JavaScript adapter lives in `js/adapter.js`. It imports ONNX Runtime Web and adapts the module's API to the small FFI surface in `src/onnxruntime.mbt`.
 
 ## Release
 
-Update the versions in `moon.mod` and `js/package.json` together, then push the matching `v<version>` tag. The release workflow checks the tag and package versions, runs the MoonBit checks and build, publishes the module and its JavaScript companion together to Mooncakes, then creates a GitHub Release with generated notes.
+Update the versions in `moon.mod` and `js/package.json` together, then push the matching `v<version>` tag. The release workflow checks the tag and module/adapter versions, runs the MoonBit checks and build, publishes the module and its JavaScript adapter together to Mooncakes, then creates a GitHub Release with generated notes.
 
 Configure these repository Actions secrets before publishing:
 
