@@ -6,9 +6,10 @@ MoonBit bindings for [ONNX Runtime Web](https://github.com/microsoft/onnxruntime
 
 - Create float32 tensors and inspect their data and dimensions.
 - Load an ONNX model from a URL or file path with `InferenceSession::create`.
+- Select execution providers, including WebGPU, when creating a session.
 - Inspect input and output names, run inference, and release the session.
 
-The current binding intentionally covers the common float32 inference path. Other tensor types, session options, fetch selection, and browser-specific execution providers are not exposed yet.
+The current binding intentionally covers the common float32 inference path. Other tensor types, general session options, and fetch selection are not exposed yet. WebGPU requires browser support and only accelerates operators supported by its execution provider.
 
 ## Install
 
@@ -33,7 +34,10 @@ Build for JavaScript with `moon build --target js`. The consumer must bundle or 
 
 ```moonbit
 async fn main {
-  let session = @onnxruntime_web.InferenceSession::create("./model.onnx")
+  let session = @onnxruntime_web.InferenceSession::create(
+    "./model.onnx",
+    execution_providers=["webgpu"],
+  )
   let input = @onnxruntime_web.Tensor::float32([1.0, 2.0, 3.0, 4.0], [1, 4])
   let outputs = session.run([("input", input)])
   let scores = outputs[0].float32_data()

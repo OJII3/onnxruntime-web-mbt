@@ -22,11 +22,15 @@ pub extern "js" fn Tensor::dims(self : Tensor) -> FixedArray[Int32] = "tensorDim
 ///|
 extern "js" fn ffi_create(
   model_path : String,
+  execution_providers : FixedArray[String],
 ) -> @js_async.Promise[InferenceSession] = "createSession"
 
 ///|
-pub async fn InferenceSession::create(model_path : String) -> InferenceSession {
-  ffi_create(model_path).wait()
+pub async fn InferenceSession::create(
+  model_path : String,
+  execution_providers~ : FixedArray[String] = [],
+) -> InferenceSession {
+  ffi_create(model_path, execution_providers).wait()
 }
 
 ///|

@@ -12,8 +12,12 @@ export function tensorDims(tensor) {
   return Array.from(tensor.dims, Number);
 }
 
-export function createSession(modelPath) {
-  return InferenceSession.create(modelPath);
+export async function createSession(modelPath, executionProviders) {
+  const ort = executionProviders.includes('webgpu')
+    ? await import('onnxruntime-web/webgpu')
+    : { InferenceSession };
+  const options = executionProviders.length > 0 ? { executionProviders } : undefined;
+  return ort.InferenceSession.create(modelPath, options);
 }
 
 export function inputNames(session) {

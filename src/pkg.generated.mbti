@@ -8,7 +8,7 @@ package "ojii3/onnxruntime_web"
 // Types and methods
 #external
 pub type InferenceSession
-pub async fn InferenceSession::create(String) -> Self
+pub async fn InferenceSession::create(String, execution_providers? : FixedArray[String]) -> Self
 pub fn InferenceSession::input_names(Self) -> FixedArray[String]
 pub fn InferenceSession::output_names(Self) -> FixedArray[String]
 pub async fn InferenceSession::release(Self) -> Unit
