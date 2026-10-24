@@ -19,15 +19,36 @@ Add the MoonBit package to your project:
 moon add OJII3/onnxruntime_web
 ```
 
-Add the import to the MoonBit package that uses the binding:
+The Mooncakes archive includes the JavaScript companion under `js/`, together with its `package.json`. Register that installed directory as a local dependency and install ONNX Runtime Web:
 
-```toml
+```sh
+# Run from the consuming MoonBit module's root, after moon add:
+pnpm add onnxruntime-web @ojii3/onnxruntime-web-mbt@link:./.mooncakes/OJII3/onnxruntime_web/js
+```
+
+Add `"OJII3/onnxruntime_web"` to your package's `moon.pkg` imports:
+
+```moonbit
 import {
   "OJII3/onnxruntime_web",
 }
+
+supported_targets = "js"
 ```
 
-Build for JavaScript with `moon build --target js`. In the JavaScript application, install ONNX Runtime Web with your package manager (for example, `pnpm add onnxruntime-web`). The adapter is included in the Mooncakes module under `js/`; it is not published as an npm package. Configure the application's bundler to resolve `@ojii3/onnxruntime-web-mbt` to that adapter.
+and build with `moon build --target js`. Browser applications need a bundler such as Vite to resolve the JavaScript imports.
+
+Both the MoonBit bindings and their JavaScript support are distributed by `moon publish`; no companion npm release or repository checkout is required. The local link resolves the existing `#module("@ojii3/onnxruntime-web-mbt")` imports and follows the companion installed by MoonBit. `onnxruntime-web` itself remains an npm dependency. No bundler alias for `@ojii3/onnxruntime-web-mbt` is needed: its local package link resolves the companion's export map in both development and production.
+
+Commit your MoonBit and pnpm manifests and lockfiles. On a fresh checkout or in CI, restore MoonBit dependencies before installing the local JavaScript link:
+
+```sh
+moon update
+moon build --target js --release
+pnpm install --frozen-lockfile
+```
+
+The link above assumes a standalone module. In a workspace, use the actual `.mooncakes/OJII3/onnxruntime_web/js` path relative to the consuming `package.json`. For a local library workspace member, link to that member's `js/` directory.
 
 ## Example
 
