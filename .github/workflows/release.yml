@@ -1,0 +1,69 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.event.release.tag_name }}
+
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      - name: Install MoonBit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+      - name: Check release version
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync } from 'node:fs'
+
+          const tag = process.env.RELEASE_TAG
+          const npmVersion = JSON.parse(readFileSync('js/package.json', 'utf8')).version
+          const moonVersion = readFileSync('moon.mod', 'utf8').match(/^version = "([^"]+)"$/m)?.[1]
+
+          if (!moonVersion || tag !== `v${npmVersion}` || tag !== `v${moonVersion}`) {
+            throw new Error(`Release tag ${tag} must match both package versions (npm: ${npmVersion}, MoonBit: ${moonVersion ?? 'missing'})`)
+          }
+          NODE
+
+      - name: Check and build
+        run: |
+          moon update
+          moon check --deny-warn
+          moon test
+          moon info
+          git diff --exit-code
+          moon fmt
+          git diff --exit-code
+          moon build --target js
+          npm pack --dry-run ./js
+
+      - name: Publish to Mooncakes
+        env:
+          MOONCAKES_TOKEN: ${{ secrets.MOONCAKES_TOKEN }}
+        run: |
+          mkdir -p "$HOME/.moon"
+          printf '%s' "$MOONCAKES_TOKEN" > "$HOME/.moon/credentials.json"
+          moon publish
+
+      - name: Publish to npm
+        working-directory: js
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public --provenance
