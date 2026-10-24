@@ -13,11 +13,10 @@ The current binding intentionally covers the common float32 inference path. Othe
 
 ## Install
 
-Add the MoonBit package and its JavaScript companion to your project:
+Add the MoonBit package to your project:
 
 ```sh
 moon add OJII3/onnxruntime_web
-pnpm add onnxruntime-web @ojii3/onnxruntime-web-mbt@link:./.mooncakes/OJII3/onnxruntime_web/js
 ```
 
 Add the import to the MoonBit package that uses the binding:
@@ -28,7 +27,7 @@ import {
 }
 ```
 
-Build for JavaScript with `moon build --target js`. The consumer must bundle or otherwise resolve the `onnxruntime-web` npm package and the companion package.
+Build for JavaScript with `moon build --target js`. In the JavaScript application, install ONNX Runtime Web with your package manager (for example, `pnpm add onnxruntime-web`). The adapter is included in the Mooncakes module under `js/`; it is not published as an npm package. Configure the application's bundler to resolve `@ojii3/onnxruntime-web-mbt` to that adapter.
 
 ## Example
 
@@ -56,11 +55,11 @@ moon fmt
 moon build --target js
 ```
 
-The npm companion lives in `js/adapter.js`. It imports ONNX Runtime Web and adapts the module's API to the small FFI surface in `src/onnxruntime.mbt`.
+The JavaScript adapter lives in `js/adapter.js`. It imports ONNX Runtime Web and adapts the module's API to the small FFI surface in `src/onnxruntime.mbt`.
 
 ## Release
 
-Update the versions in `moon.mod` and `js/package.json` together, then push the matching `v<version>` tag. The release workflow checks the tag and package versions, runs the MoonBit checks and build, publishes the module and its JavaScript companion together to Mooncakes, then creates a GitHub Release with generated notes.
+Update the versions in `moon.mod` and `js/package.json` together, then push the matching `v<version>` tag. The release workflow checks the tag and module/adapter versions, runs the MoonBit checks and build, publishes the module and its JavaScript adapter together to Mooncakes, then creates a GitHub Release with generated notes.
 
 Configure these repository Actions secrets before publishing:
 
