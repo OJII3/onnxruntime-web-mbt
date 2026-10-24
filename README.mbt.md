@@ -57,3 +57,11 @@ moon build --target js
 ```
 
 The npm companion lives in `js/adapter.js`. It imports ONNX Runtime Web and adapts the module's API to the small FFI surface in `src/onnxruntime.mbt`.
+
+## Release
+
+Update the versions in `moon.mod` and `js/package.json` together, then push the matching `v<version>` tag. The release workflow checks the tag and package versions, runs the MoonBit checks and build, publishes the module and its JavaScript companion together to Mooncakes, then creates a GitHub Release with generated notes.
+
+Configure these repository Actions secrets before publishing:
+
+- `MOONCAKES_TOKEN`: Mooncakes API token. The workflow writes it to `~/.moon/credentials.json`.

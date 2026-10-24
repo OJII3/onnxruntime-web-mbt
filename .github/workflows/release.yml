@@ -1,0 +1,69 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 22
+
+      - name: Install MoonBit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+      - name: Check release version
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync } from 'node:fs'
+
+          const tag = process.env.RELEASE_TAG
+          const npmVersion = JSON.parse(readFileSync('js/package.json', 'utf8')).version
+          const moonVersion = readFileSync('moon.mod', 'utf8').match(/^version = "([^"]+)"$/m)?.[1]
+
+          if (!moonVersion || tag !== `v${npmVersion}` || tag !== `v${moonVersion}`) {
+            throw new Error(`Release tag ${tag} must match both package versions (npm: ${npmVersion}, MoonBit: ${moonVersion ?? 'missing'})`)
+          }
+          NODE
+
+      - name: Check Mooncakes credentials
+        env:
+          MOONCAKES_TOKEN: ${{ secrets.MOONCAKES_TOKEN }}
+        run: test -n "$MOONCAKES_TOKEN"
+
+      - name: Check and build
+        run: |
+          moon update
+          moon check --deny-warn
+          moon test
+          moon info
+          git diff --exit-code
+          moon fmt
+          git diff --exit-code
+          moon build --target js
+
+      - name: Publish to Mooncakes
+        env:
+          MOONCAKES_TOKEN: ${{ secrets.MOONCAKES_TOKEN }}
+        run: |
+          mkdir -p "$HOME/.moon"
+          jq -n --arg username "OJII3" --arg token "$MOONCAKES_TOKEN" \
+            '{username: $username, token: $token}' > "$HOME/.moon/credentials.json"
+          moon publish
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" --generate-notes
