@@ -1,4 +1,4 @@
-name = "ojii3/onnxruntime_web"
+name = "OJII3/onnxruntime_web"
 
 version = "0.1.0"
 

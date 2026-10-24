@@ -16,15 +16,15 @@ The current binding intentionally covers the common float32 inference path. Othe
 Add the MoonBit package and its JavaScript companion to your project:
 
 ```sh
-moon add ojii3/onnxruntime_web
-pnpm add onnxruntime-web @ojii3/onnxruntime-web-mbt@link:./.mooncakes/ojii3/onnxruntime_web/js
+moon add OJII3/onnxruntime_web
+pnpm add onnxruntime-web @ojii3/onnxruntime-web-mbt@link:./.mooncakes/OJII3/onnxruntime_web/js
 ```
 
 Add the import to the MoonBit package that uses the binding:
 
 ```toml
 import {
-  "ojii3/onnxruntime_web",
+  "OJII3/onnxruntime_web",
 }
 ```
 
