@@ -60,9 +60,8 @@ The npm companion lives in `js/adapter.js`. It imports ONNX Runtime Web and adap
 
 ## Release
 
-Update the versions in `moon.mod` and `js/package.json` together, then publish a GitHub Release with the matching `v<version>` tag. The release workflow checks the tag and package versions, runs the MoonBit checks and build, then publishes the MoonBit package to Mooncakes and the companion package to npm.
+Update the versions in `moon.mod` and `js/package.json` together, then publish a GitHub Release with the matching `v<version>` tag. The release workflow checks the tag and package versions, runs the MoonBit checks and build, then publishes the module and its JavaScript companion together to Mooncakes.
 
 Configure these repository Actions secrets before publishing:
 
 - `MOONCAKES_TOKEN`: Mooncakes credentials JSON for `~/.moon/credentials.json`.
-- `NPM_TOKEN`: npm publish token with access to `@ojii3/onnxruntime-web`.

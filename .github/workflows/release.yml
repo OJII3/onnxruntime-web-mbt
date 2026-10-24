@@ -52,7 +52,6 @@ jobs:
           moon fmt
           git diff --exit-code
           moon build --target js
-          npm pack --dry-run ./js
 
       - name: Publish to Mooncakes
         env:
@@ -61,9 +60,3 @@ jobs:
           mkdir -p "$HOME/.moon"
           printf '%s' "$MOONCAKES_TOKEN" > "$HOME/.moon/credentials.json"
           moon publish
-
-      - name: Publish to npm
-        working-directory: js
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm publish --access public --provenance
